@@ -79,7 +79,7 @@ export default class DateRange extends React.Component {
           showToday
           ref="startValue"
         />
-      {/*<DatePicker
+      <DatePicker
           className="ant-calendar"
           disabledDate={this.disabledEndDate}
           format={format}
@@ -90,7 +90,7 @@ export default class DateRange extends React.Component {
           onOpenChange={this.handleEndOpenChange}
           showToday
           ref="endValue"
-        />*/}
+        />
       </div>
     );
   }

@@ -36,9 +36,7 @@ class App extends Component {
     const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
 
     const startValue = this.state.startValue;
-    const endValue = this.state.setEndValue;
-    //alert("startValue  " + startValue + " endValue  " + endValue);
-    //alert("endValue  " + endValue);
+    const endValue = this.state.endValue;
     Meteor.call('tasks.insert', text, new Date(startValue));
 
     // Clear form
@@ -94,9 +92,8 @@ class App extends Component {
           </label>
           <div>
             {/* required
-              <RangePicker setStartValue={this.setStartValue} setEndValue={this.setEndValue}></RangePicker>
               */}
-          <RangePicker ref="dateInput" setStartValue={this.setStartValue}></RangePicker>
+          <RangePicker ref="dateInput" setStartValue={this.setStartValue} setEndValue={this.setEndValue}></RangePicker>
           </div>
           <div>
             <input type="submit" value="Add"/>
