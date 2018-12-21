@@ -20,9 +20,11 @@ class App extends Component {
 
     this.state = {
       hideCompleted: false,
+      openModal: false,
       startValue: null,
       endValue: null,
-      openModal: false,
+      taskId: null,
+      textValue: '',
     };
   }
 
@@ -47,16 +49,16 @@ class App extends Component {
     });
   }
 
+  setTextValue = (value) => {
+    this.setState({textValue: value})
+  };
+
   setStartValue = (value) => {
-    this.setState({
-      startValue: value
-    })
+    this.setState({startValue: value})
   };
 
   setEndValue = (value) => {
-    this.setState({
-      endValue: value
-    })
+    this.setState({endValue: value})
   };
 
   onOpenModal = () => {
@@ -67,8 +69,13 @@ class App extends Component {
     this.setState({openModal: false});
   };
 
-  editThisTask = () => {
+  editThisTask = (taskId) => {
     this.setState({openModal: true});
+    this.setState({taskId: taskId});
+    const currTask = Tasks.findOne(taskId);
+    //this.setTextValue({textValue: true});
+    //console.log('task id : ' + value);
+    console.log('task text : ' + currTask.text);
   };
 
   addTaskRender() {
@@ -89,7 +96,7 @@ class App extends Component {
               </label>
               <div>
                 {/* required */}
-                <RangePicker ref="dateInput" setStartValue={this.setStartValue} setEndValue={this.setEndValue}></RangePicker>
+                <RangePicker ref="dateInput" setStartValue={this.setStartValue} setEndValue={this.setEndValue}/>
               </div>
               <div>
                 <input type="submit" value="Add"/>

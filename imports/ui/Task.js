@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {Meteor} from 'meteor/meteor';
 import classnames from 'classnames';
-
 import {Tasks} from '../api/tasks.js';
 
 // Task component - represents a single todo item
@@ -26,7 +25,8 @@ export default class Task extends Component {
   }
 
   editThisTask() {
-    this.props.editThisTask();
+    this.props.editThisTask(this.props.task._id);
+    console.log('task id in t : ' + this.props.task._id);
   };
 
   handleSubmit(event) {
