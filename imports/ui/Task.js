@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 import classnames from 'classnames';
 import Modal from 'react-responsive-modal';
@@ -11,12 +12,10 @@ export default class Task extends Component {
   constructor(props) {
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.editTaskRender = this.editTaskRender.bind(this);
 
     this.state = {
       startValue:null,
       endValue: null,
-      openModal: false,
     };
   }
 
@@ -29,17 +28,8 @@ export default class Task extends Component {
     Meteor.call('tasks.remove', this.props.task._id);
   }
 
-  onOpenModal = () => {
-    this.setState({ openModal: true });
-  };
-
-  onCloseModal = () => {
-    this.setState({ openModal: false });
-  };
-
   editThisTask() {
-    this.onOpenModal();
-    this.editTaskRender();
+    this.props.editThisTask();
   };
 
   handleSubmit(event) {
@@ -48,38 +38,7 @@ export default class Task extends Component {
     this.onCloseModal();
   }
 
-  editTaskRender() {
-    const { openModal } = this.state;
-    //this.onOpenModal();
-    return (
-      <div>
-        <Modal open={openModal} onClose={this.onCloseModal} center>
-          <form className="new-task" onSubmit={this.handleSubmit} >
-            <label>
-            <input
-              type="text"
-              ref="textInput"
-              placeholder="Type to add new tasks"
-            />
-          </label>
-          <div>
-            {/* required
-              <RangePicker setStartValue={this.setStartValue} setEndValue={this.setEndValue}></RangePicker>
-              */}
-          <RangePicker ref="dateInput" ></RangePicker>
-          </div>
-          <div>
-            <input type="submit" value="edit"/>
-          </div>
-        </form> : ''
-        </Modal>
-      </div>
-    );
-  }
-
   render() {
-    // Give tasks a different className when they are checked off,
-    // so that we can style them nicely in CSS
     const taskClassName = classnames({
       checked: this.props.task.checked,
     });
