@@ -1,11 +1,8 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Meteor } from 'meteor/meteor';
+import React, {Component} from 'react';
+import {Meteor} from 'meteor/meteor';
 import classnames from 'classnames';
-import Modal from 'react-responsive-modal';
-import RangePicker from './DateRange.js';
 
-import { Tasks } from '../api/tasks.js';
+import {Tasks} from '../api/tasks.js';
 
 // Task component - represents a single todo item
 export default class Task extends Component {
@@ -14,7 +11,7 @@ export default class Task extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
 
     this.state = {
-      startValue:null,
+      startValue: null,
       endValue: null,
     };
   }
@@ -42,7 +39,7 @@ export default class Task extends Component {
     const taskClassName = classnames({
       checked: this.props.task.checked,
     });
-    let options = { weekday: 'short', year: 'numeric', month: '2-digit', day: 'numeric' };
+    let options = {weekday: 'short', year: 'numeric', month: '2-digit', day: 'numeric'};
 
     return (
       <li className={taskClassName}>
@@ -57,7 +54,7 @@ export default class Task extends Component {
           onClick={this.toggleChecked.bind(this)}
         />
 
-      <span className="text" onClick={this.editThisTask.bind(this)}>
+        <span className="text" onClick={this.editThisTask.bind(this)}>
           {this.props.task.text}
         </span>
         <span className="text" onClick={this.editThisTask.bind(this)}>
