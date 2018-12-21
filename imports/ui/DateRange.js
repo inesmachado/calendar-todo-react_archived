@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 import { DatePicker } from 'antd';
-import 'antd/lib/date-picker/style/index.css';
+import 'antd/dist/antd.css';
 import moment from 'moment';
 import 'moment/locale/en-GB';
 import { App } from './App.js'
@@ -60,7 +60,7 @@ export default class DateRange extends React.Component {
 
   clearInput() {
     ReactDOM.findDOMNode(this.refs.startValue).value = '';
-    //ReactDOM.findDOMNode(this.refs.endValue).value = '';
+    ReactDOM.findDOMNode(this.refs.endValue).value = '';
   }
 
   render() {
