@@ -1,11 +1,9 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import { Meteor } from 'meteor/meteor';
-import { DatePicker } from 'antd';
-import 'antd/lib/date-picker/style/index.css';
+import {DatePicker} from 'antd';
+import 'antd/dist/antd.css';
 import moment from 'moment';
 import 'moment/locale/en-GB';
-import { App } from './App.js'
 
 moment.locale('en-GB');
 
@@ -50,22 +48,22 @@ export default class DateRange extends React.Component {
 
   handleStartOpenChange = (open) => {
     if (!open) {
-      this.setState({ endOpen: true });
+      this.setState({endOpen: true});
     }
   }
 
   handleEndOpenChange = (open) => {
-    this.setState({ endOpen: open });
+    this.setState({endOpen: open});
   }
 
   clearInput() {
     ReactDOM.findDOMNode(this.refs.startValue).value = '';
-    //ReactDOM.findDOMNode(this.refs.endValue).value = '';
+    ReactDOM.findDOMNode(this.refs.endValue).value = '';
   }
 
   render() {
-    const { startValue, endValue, endOpen } = this.state;
-    let format="DD/MM/YYYY";
+    const {startValue, endValue, endOpen} = this.state;
+    let format = "DD/MM/YYYY";
     return (
       <div className="new-task">
         <DatePicker
@@ -79,7 +77,7 @@ export default class DateRange extends React.Component {
           showToday
           ref="startValue"
         />
-      <DatePicker
+        <DatePicker
           className="ant-calendar"
           disabledDate={this.disabledEndDate}
           format={format}

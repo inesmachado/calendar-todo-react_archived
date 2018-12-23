@@ -1,15 +1,14 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
+import {Meteor} from 'meteor/meteor';
+import {withTracker} from 'meteor/react-meteor-data';
 import AccountsUIWrapper from './AccountsUIWrapper.js';
 import Modal from 'react-responsive-modal';
-import { Tasks } from '../api/tasks.js';
+import {Tasks} from '../api/tasks.js';
 import Task from './Task.js';
 import RangePicker from './DateRange.js';
-import { Calendar, Button } from 'antd';
-import 'antd/lib/calendar/style/index.css';
-import 'antd/lib/button/style/index.css';
+import {Calendar, Button} from 'antd';
+import 'antd/dist/antd.css';
 
 // App component - represents the whole app
 class App extends Component {
@@ -18,26 +17,32 @@ class App extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setStartValue = this.setStartValue.bind(this);
     this.setEndValue = this.setEndValue.bind(this);
-    this.onPanelChange = this.onPanelChange.bind(this);
 
     this.state = {
       hideCompleted: false,
-      startValue:null,
-      endValue: null,
       openModal: false,
+      startValue: null,
+      endValue: null,
+      taskId: null,
+      textValue: '',
+      inputValue:'add',
     };
   }
-
 
   handleSubmit(event) {
     event.preventDefault();
 
-    // Find the text field via the React ref
     const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
 
     const startValue = this.state.startValue;
     const endValue = this.state.endValue;
-    Meteor.call('tasks.insert', text, new Date(startValue));
+    const taskId = this.state.taskId;
+
+    if (taskId === ''){
+      Meteor.call('tasks.insert', text, new Date(startValue));
+    }else {
+      Meteor.call('tasks.update', taskId, text);
+    }
 
     // Clear form
     ReactDOM.findDOMNode(this.refs.textInput).value = '';
@@ -52,54 +57,65 @@ class App extends Component {
   }
 
   setStartValue = (value) => {
-    this.setState({
-      startValue: value
-    })
+    this.setState({startValue: value})
   };
 
   setEndValue = (value) => {
-    this.setState({
-      endValue: value
-    })
-  };
-
-  onPanelChange = (value, mode) => {
-    console.log(value, mode);
+    this.setState({endValue: value})
   };
 
   onOpenModal = () => {
-    this.setState({ openModal: true });
+    this.setState({openModal: true});
+    this.resetFields();
   };
 
   onCloseModal = () => {
-    this.setState({ openModal: false });
+    this.setState({openModal: false});
+  };
+
+  resetFields = () => {
+    this.setState({textValue: ''});
+    this.setState({taskId: ''});
+    this.setState({inputValue: 'add'});
+  };
+
+  editThisTask = (taskId) => {
+    this.setState({taskId: taskId});
+    const currTask = Tasks.findOne(taskId);
+    this.setState({textValue: currTask.text});
+    this.setState({inputValue: 'edit'});
+    this.setState({openModal: true});
+
   };
 
   addTaskRender() {
-    const { openModal } = this.state;
+    const {openModal} = this.state;
+    const {textValue} = this.state;
+    const {inputValue} = this.state;
     return (
       <div>
+        <br/>
         <Button onClick={this.onOpenModal} size="small">Add a Task</Button>
         <Modal open={openModal} onClose={this.onCloseModal} centre>
-          { this.props.currentUser ?
-          <form className="new-task" onSubmit={this.handleSubmit} >
-            <label>
-            <input
-              type="text"
-              ref="textInput"
-              placeholder="Type to add new tasks"
-            />
-          </label>
-          <div>
-            {/* required
-              */}
-          <RangePicker ref="dateInput" setStartValue={this.setStartValue} setEndValue={this.setEndValue}></RangePicker>
-          </div>
-          <div>
-            <input type="submit" value="Add"/>
-          </div>
-        </form> : ''
-      }
+          {this.props.currentUser ?
+            <form className="new-task" onSubmit={this.handleSubmit}>
+              <label>
+                <input
+                  type="text"
+                  ref="textInput"
+                  placeholder="Type to add new tasks"
+                  defaultValue={textValue}
+                />
+              </label>
+              <div>
+                {/* required */}
+                <RangePicker ref="dateInput" setStartValue={this.setStartValue} setEndValue={this.setEndValue}/>
+              </div>
+              <div>
+                <input type="submit" value={inputValue}/>
+              </div>
+            </form> : ''
+          }
         </Modal>
       </div>
     );
@@ -115,6 +131,7 @@ class App extends Component {
 
       return (
         <Task
+          editThisTask={this.editThisTask}
           key={task._id}
           task={task}
         />
@@ -137,15 +154,15 @@ class App extends Component {
             />
             Hide Completed Tasks
           </label>
-          <AccountsUIWrapper />
+          <AccountsUIWrapper/>
           {this.addTaskRender()}
         </header>
 
         <ul>
           {this.renderTasks()}
         </ul>
-       {/* <div>
-          <Calendar lassName="ant-fullcalendar" onPanelChange={this.onPanelChange}> </Calendar>
+        {/* <div>
+          <Calendar/>
         </div>*/}
       </div>
     );
@@ -156,8 +173,8 @@ export default withTracker(() => {
   Meteor.subscribe('tasks');
 
   return {
-    tasks: Tasks.find({}, { sort: { startValue: 1 , text: 1} }).fetch(),
-    incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
+    tasks: Tasks.find({}, {sort: {startValue: 1, text: 1}}).fetch(),
+    incompleteCount: Tasks.find({checked: {$ne: true}}).count(),
     currentUser: Meteor.user(),
   };
 })(App);
