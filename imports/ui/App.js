@@ -25,6 +25,7 @@ class App extends Component {
       endValue: null,
       taskId: null,
       textValue: '',
+      inputValue:'add',
     };
   }
 
@@ -35,7 +36,13 @@ class App extends Component {
 
     const startValue = this.state.startValue;
     const endValue = this.state.endValue;
-    Meteor.call('tasks.insert', text, new Date(startValue));
+    const taskId = this.state.taskId;
+
+    if (taskId === ''){
+      Meteor.call('tasks.insert', text, new Date(startValue));
+    }else {
+      Meteor.call('tasks.update', taskId, text);
+    }
 
     // Clear form
     ReactDOM.findDOMNode(this.refs.textInput).value = '';
@@ -49,10 +56,6 @@ class App extends Component {
     });
   }
 
-  setTextValue = (value) => {
-    this.setState({textValue: value})
-  };
-
   setStartValue = (value) => {
     this.setState({startValue: value})
   };
@@ -63,23 +66,32 @@ class App extends Component {
 
   onOpenModal = () => {
     this.setState({openModal: true});
+    this.resetFields();
   };
 
   onCloseModal = () => {
     this.setState({openModal: false});
   };
 
+  resetFields = () => {
+    this.setState({textValue: ''});
+    this.setState({taskId: ''});
+    this.setState({inputValue: 'add'});
+  };
+
   editThisTask = (taskId) => {
-    this.setState({openModal: true});
     this.setState({taskId: taskId});
     const currTask = Tasks.findOne(taskId);
-    //this.setTextValue({textValue: true});
-    //console.log('task id : ' + value);
-    console.log('task text : ' + currTask.text);
+    this.setState({textValue: currTask.text});
+    this.setState({inputValue: 'edit'});
+    this.setState({openModal: true});
+
   };
 
   addTaskRender() {
     const {openModal} = this.state;
+    const {textValue} = this.state;
+    const {inputValue} = this.state;
     return (
       <div>
         <br/>
@@ -92,6 +104,7 @@ class App extends Component {
                   type="text"
                   ref="textInput"
                   placeholder="Type to add new tasks"
+                  defaultValue={textValue}
                 />
               </label>
               <div>
@@ -99,7 +112,7 @@ class App extends Component {
                 <RangePicker ref="dateInput" setStartValue={this.setStartValue} setEndValue={this.setEndValue}/>
               </div>
               <div>
-                <input type="submit" value="Add"/>
+                <input type="submit" value={inputValue}/>
               </div>
             </form> : ''
           }

@@ -55,10 +55,9 @@ Meteor.methods({
 
         Tasks.update(taskId, {$set: {checked: setChecked}});
     },
-    'tasks.upDate'(taskId, newText, newDueDate) {
+    'tasks.update'(taskId, newText) {
         check(taskId, String);
         check(newText, String);
-        check(newDueDate, String);
 
         const task = Tasks.findOne(taskId);
         if (task.owner !== this.userId) {
@@ -66,6 +65,6 @@ Meteor.methods({
             throw new Meteor.Error('not-authorized');
         }
 
-        //Tasks.update(taskId, { $set: { text: newText , Duedate: new Date(newDueDate)} });
+        Tasks.update(taskId, { $set: { text: newText } });
     },
 });

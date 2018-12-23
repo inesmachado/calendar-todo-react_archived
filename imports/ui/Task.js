@@ -26,7 +26,6 @@ export default class Task extends Component {
 
   editThisTask() {
     this.props.editThisTask(this.props.task._id);
-    console.log('task id in t : ' + this.props.task._id);
   };
 
   handleSubmit(event) {
