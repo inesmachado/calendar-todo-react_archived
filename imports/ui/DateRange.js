@@ -7,12 +7,17 @@ import 'moment/locale/en-GB';
 
 moment.locale('en-GB');
 
-export default class DateRange extends React.Component {
-  state = {
-    startValue: null,
-    endValue: null,
-    endOpen: false,
-  };
+export default class DateRange extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      startValue: moment(),
+      endValue: moment(),
+      endOpen: false,
+    };
+
+  }
 
   disabledStartDate = (startValue) => {
     const endValue = this.state.endValue;
@@ -20,7 +25,7 @@ export default class DateRange extends React.Component {
       return false;
     }
     return startValue.valueOf() > endValue.valueOf();
-  }
+  };
 
   disabledEndDate = (endValue) => {
     const startValue = this.state.startValue;
@@ -28,33 +33,33 @@ export default class DateRange extends React.Component {
       return false;
     }
     return endValue.valueOf() <= startValue.valueOf();
-  }
+  };
 
   onChange = (field, value) => {
     this.setState({
       [field]: value,
     });
-  }
+  };
 
   onStartChange = (value) => {
     this.onChange('startValue', value);
     this.props.setStartValue(value);
-  }
+  };
 
   onEndChange = (value) => {
     this.onChange('endValue', value);
     this.props.setEndValue(value);
-  }
+  };
 
   handleStartOpenChange = (open) => {
     if (!open) {
       this.setState({endOpen: true});
     }
-  }
+  };
 
   handleEndOpenChange = (open) => {
     this.setState({endOpen: open});
-  }
+  };
 
   clearInput() {
     ReactDOM.findDOMNode(this.refs.startValue).value = '';
@@ -62,7 +67,7 @@ export default class DateRange extends React.Component {
   }
 
   render() {
-    const {startValue, endValue, endOpen} = this.state;
+    let {startValue, endValue, endOpen} = this.state;
     let format = "DD/MM/YYYY";
     return (
       <div className="new-task">

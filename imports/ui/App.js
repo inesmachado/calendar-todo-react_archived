@@ -9,6 +9,8 @@ import Task from './Task.js';
 import RangePicker from './DateRange.js';
 import {Calendar, Button} from 'antd';
 import 'antd/dist/antd.css';
+import moment from 'moment';
+import 'moment/locale/en-GB';
 
 // App component - represents the whole app
 class App extends Component {
@@ -21,8 +23,8 @@ class App extends Component {
     this.state = {
       hideCompleted: false,
       openModal: false,
-      startValue: null,
-      endValue: null,
+      startValue: moment(),
+      endValue: moment(),
       taskId: null,
       textValue: '',
       inputValue:'add',
@@ -37,6 +39,8 @@ class App extends Component {
     const startValue = this.state.startValue;
     const endValue = this.state.endValue;
     const taskId = this.state.taskId;
+
+    console.log('App date '+new Date (startValue));
 
     if (taskId === ''){
       Meteor.call('tasks.insert', text, new Date(startValue));
@@ -89,9 +93,7 @@ class App extends Component {
   };
 
   addTaskRender() {
-    const {openModal} = this.state;
-    const {textValue} = this.state;
-    const {inputValue} = this.state;
+    const {openModal, textValue, inputValue} = this.state;
     return (
       <div>
         <br/>
