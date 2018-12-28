@@ -40,8 +40,6 @@ class App extends Component {
     const endValue = this.state.endValue;
     const taskId = this.state.taskId;
 
-    console.log('App date '+new Date (startValue));
-
     if (taskId === ''){
       Meteor.call('tasks.insert', text, new Date(startValue));
     }else {

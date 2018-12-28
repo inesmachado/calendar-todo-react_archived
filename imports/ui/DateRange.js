@@ -15,12 +15,17 @@ export default class DateRange extends Component {
       startValue: moment(),
       endValue: moment(),
       endOpen: false,
+      lockDate: false,
     };
 
   }
 
   disabledStartDate = (startValue) => {
-    const endValue = this.state.endValue;
+    const {endValue, lockDate} = this.state;
+
+    if (!lockDate) {
+      return false;
+    }
     if (!startValue || !endValue) {
       return false;
     }
@@ -42,6 +47,7 @@ export default class DateRange extends Component {
   };
 
   onStartChange = (value) => {
+    this.setState({lockDate: true,});
     this.onChange('startValue', value);
     this.props.setStartValue(value);
   };
@@ -67,8 +73,8 @@ export default class DateRange extends Component {
   }
 
   render() {
-    let {startValue, endValue, endOpen} = this.state;
-    let format = "DD/MM/YYYY";
+    const {startValue, endValue, endOpen} = this.state;
+    const format = "DD/MM/YYYY";
     return (
       <div className="new-task">
         <DatePicker
