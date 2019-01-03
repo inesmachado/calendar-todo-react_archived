@@ -3,29 +3,36 @@ import ReactDOM from 'react-dom';
 import {Meteor} from 'meteor/meteor';
 import {withTracker} from 'meteor/react-meteor-data';
 import AccountsUIWrapper from './AccountsUIWrapper.js';
-import Modal from 'react-responsive-modal';
 import {Tasks} from '../api/tasks.js';
 import Task from './Task.js';
-import RangePicker from './DateRange.js';
-import {Calendar, Button} from 'antd';
+import Modal from 'react-responsive-modal';
+import {Button, Calendar, DatePicker} from 'antd';
 import 'antd/dist/antd.css';
+import moment from 'moment';
+import 'moment/locale/en-GB';
 
 // App component - represents the whole app
 class App extends Component {
   constructor(props) {
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.setStartValue = this.setStartValue.bind(this);
-    this.setEndValue = this.setEndValue.bind(this);
 
     this.state = {
+      //App fields
       hideCompleted: false,
-      openModal: false,
-      startValue: null,
-      endValue: null,
-      taskId: null,
+      inputValue: 'add',
+      taskId: '',
       textValue: '',
-      inputValue:'add',
+
+      //Modal fields
+      openModal: false,
+
+      //Date Picker fields
+      startValue: moment(),
+      endValue: moment(),
+      DateReadOnly: false,
+      endOpen: false,
+      lockDate: false,
     };
   }
 
@@ -33,20 +40,16 @@ class App extends Component {
     event.preventDefault();
 
     const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
+    const {startValue, endValue, taskId} = this.state;
 
-    const startValue = this.state.startValue;
-    const endValue = this.state.endValue;
-    const taskId = this.state.taskId;
-
-    if (taskId === ''){
-      Meteor.call('tasks.insert', text, new Date(startValue));
-    }else {
+    if (taskId === '') {
+      Meteor.call('tasks.insert', text, new Date(startValue), new Date(endValue));
+    } else {
       Meteor.call('tasks.update', taskId, text);
     }
 
     // Clear form
     ReactDOM.findDOMNode(this.refs.textInput).value = '';
-    this.refs.dateInput.clearInput();
     this.onCloseModal();
   }
 
@@ -74,24 +77,72 @@ class App extends Component {
   };
 
   resetFields = () => {
-    this.setState({textValue: ''});
-    this.setState({taskId: ''});
     this.setState({inputValue: 'add'});
+    this.setState({taskId: ''});
+    this.setState({textValue: ''});
+    this.setState({startValue: moment()});
+    this.setState({endValue: moment()});
+    this.setState({DateReadOnly: false});
   };
 
   editThisTask = (taskId) => {
     this.setState({taskId: taskId});
     const currTask = Tasks.findOne(taskId);
-    this.setState({textValue: currTask.text});
     this.setState({inputValue: 'edit'});
+    this.setState({textValue: currTask.text});
+    this.setState({startValue: currTask.startValue});
+    this.setState({endValue: currTask.endValue});
+    this.setState({DateReadOnly: true});
     this.setState({openModal: true});
-
   };
 
+  disabledStartDate = (startValue) => {
+    const endValue = this.state.endValue;
+    const lockDate = this.state.lockDate;
+
+    if (!lockDate) {
+      return false;
+    }
+    if (!startValue || !endValue) {
+      return false;
+    }
+    return startValue.valueOf() > endValue.valueOf();
+  };
+
+  disabledEndDate = (endValue) => {
+    //Setting the time at startValue 00:00:00 to be able to select the end date the same day as the start day
+    const startValue = this.state.startValue.set({'hour': 0, 'minute': 0, 'second': 0});
+
+    console.log("startValue : " + startValue.toString());
+
+    if (!endValue || !startValue) {
+      return false;
+    }
+    return endValue.valueOf() <= startValue.valueOf();
+  };
+
+  onStartChange = (value) => {
+    this.setState({lockDate: true});
+    this.setState({startValue: value});
+  };
+
+  onEndChange = (value) => {
+    this.setState({endValue: value});
+  };
+
+  handleStartOpenChange = (open) => {
+    if (!open) {
+      this.setState({endOpen: true});
+    }
+  };
+
+  handleEndOpenChange = (open) => {
+    this.setState({endOpen: open});
+  };
+
+
   addTaskRender() {
-    const {openModal} = this.state;
-    const {textValue} = this.state;
-    const {inputValue} = this.state;
+    const {openModal, textValue, inputValue} = this.state;
     return (
       <div>
         <br/>
@@ -105,11 +156,11 @@ class App extends Component {
                   ref="textInput"
                   placeholder="Type to add new tasks"
                   defaultValue={textValue}
+                  required
                 />
               </label>
               <div>
-                {/* required */}
-                <RangePicker ref="dateInput" setStartValue={this.setStartValue} setEndValue={this.setEndValue}/>
+                {this.DatePickerRender()}
               </div>
               <div>
                 <input type="submit" value={inputValue}/>
@@ -121,7 +172,7 @@ class App extends Component {
     );
   }
 
-  renderTasks() {
+  tasksRender() {
     let filteredTasks = this.props.tasks;
     if (this.state.hideCompleted) {
       filteredTasks = filteredTasks.filter(task => !task.checked);
@@ -137,6 +188,44 @@ class App extends Component {
         />
       );
     });
+  }
+
+  DatePickerRender() {
+    const startValue = moment(this.state.startValue);
+    const endValue = moment(this.state.endValue);
+    const {endOpen, DateReadOnly} = this.state;
+    const format = "DD/MM/YYYY";
+
+    return (
+      <div className="new-task">
+        <DatePicker
+          className="ant-calendar"
+          disabledDate={this.disabledStartDate}
+          disabled={DateReadOnly}
+          format={format}
+          value={startValue}
+          placeholder="Start"
+          onChange={this.onStartChange}
+          onOpenChange={this.handleStartOpenChange}
+          showToday
+          ref="startValue"
+          newStartChange={this.newStartChange}
+        />
+        <DatePicker
+          className="ant-calendar"
+          disabledDate={this.disabledEndDate}
+          disabled={DateReadOnly}
+          format={format}
+          value={endValue}
+          placeholder="End"
+          onChange={this.onEndChange}
+          open={endOpen}
+          onOpenChange={this.handleEndOpenChange}
+          showToday
+          ref="endValue"
+        />
+      </div>
+    );
   }
 
   render() {
@@ -159,7 +248,7 @@ class App extends Component {
         </header>
 
         <ul>
-          {this.renderTasks()}
+          {this.tasksRender()}
         </ul>
         {/* <div>
           <Calendar/>
