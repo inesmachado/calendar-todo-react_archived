@@ -113,8 +113,6 @@ class App extends Component {
     //Setting the time at startValue 00:00:00 to be able to select the end date the same day as the start day
     const startValue = this.state.startValue.set({'hour': 0, 'minute': 0, 'second': 0});
 
-    console.log("startValue : " + startValue.toString());
-
     if (!endValue || !startValue) {
       return false;
     }
