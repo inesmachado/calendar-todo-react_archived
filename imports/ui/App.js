@@ -144,7 +144,9 @@ class App extends Component {
     return (
       <div>
         <br/>
-        <Button onClick={this.onOpenModal} size="small">Add a Task</Button>
+        {this.props.currentUser ?
+          <Button onClick={this.onOpenModal} size="small">Add a Task</Button> : ''
+        }
         <Modal open={openModal} onClose={this.onCloseModal} centre>
           {this.props.currentUser ?
             <form className="new-task" onSubmit={this.handleSubmit}>
