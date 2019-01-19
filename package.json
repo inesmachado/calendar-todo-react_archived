@@ -9,13 +9,13 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.2.0",
-    "antd": "^3.12.1",
+    "antd": "^3.12.3",
     "antd-init": "^2.0.7",
     "babel-plugin-import": "^1.11.0",
     "bcrypt": "^3.0.3",
     "indexof": "0.0.1",
     "meteor-node-stubs": "^0.4.1",
-    "moment": "latest",
+    "moment": "^2.23.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-responsive-modal": "^3.5.1"
