@@ -18,8 +18,8 @@ meteor
 
 - [x] Add a task
 - [x] Edit the name of the task
-- [ ] Repeat the task for the selected days
+- [x] Repeat the task for the selected days
 - [x] Delete a single task
-- [ ] Delete all the repeated tasks
+- [x] Delete all the repeated tasks
 - [ ] Calendar view
 - [ ] Design
