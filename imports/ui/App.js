@@ -43,6 +43,9 @@ class App extends Component {
     const {startValue, endValue, taskId} = this.state;
 
     if (taskId === '') {
+       if (startValue === '') {
+           this.setState({startValue: moment()});
+       }
       Meteor.call('tasks.insert', text, new Date(startValue), new Date(endValue));
     } else {
       Meteor.call('tasks.update', taskId, text);
@@ -111,7 +114,7 @@ class App extends Component {
 
   disabledEndDate = (endValue) => {
     //Setting the time at startValue 00:00:00 to be able to select the end date the same day as the start day
-    const startValue = this.state.startValue.set({'hour': 0, 'minute': 0, 'second': 0});
+    const startValue = this.state.startValue.set({'hour': 1, 'minute': 0, 'second': 0});
 
     if (!endValue || !startValue) {
       return false;
@@ -138,7 +141,7 @@ class App extends Component {
     this.setState({endOpen: open});
   };
 
-
+//Renders
   addTaskRender() {
     const {openModal, textValue, inputValue} = this.state;
     return (
@@ -233,7 +236,7 @@ class App extends Component {
       <div className="container">
         <header>
           <h1>Todo List ({this.props.incompleteCount})</h1>
-
+          
           <label className="hide-completed">
             <input
               type="checkbox"
@@ -262,7 +265,7 @@ export default withTracker(() => {
   Meteor.subscribe('tasks');
 
   return {
-    tasks: Tasks.find({}, {sort: {startValue: 1, text: 1}}).fetch(),
+    tasks: Tasks.find({}, {sort: {displayDate: 1, text: 1}}).fetch(),
     incompleteCount: Tasks.find({checked: {$ne: true}}).count(),
     currentUser: Meteor.user(),
   };
