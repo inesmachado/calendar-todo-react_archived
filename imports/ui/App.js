@@ -6,7 +6,7 @@ import AccountsUIWrapper from './AccountsUIWrapper.js';
 import {Tasks} from '../api/tasks.js';
 import Task from './Task.js';
 import Modal from 'react-responsive-modal';
-import {Button, Calendar, DatePicker} from 'antd';
+import {Button, Calendar, DatePicker, Icon} from 'antd';
 import 'antd/dist/antd.css';
 import moment from 'moment';
 import 'moment/locale/en-GB';
@@ -33,9 +33,13 @@ class App extends Component {
       DateReadOnly: false,
       endOpen: false,
       lockDate: false,
+      
+      //Icon fields
+      visibility: 'hidden',
     };
   }
 
+//App functions
   handleSubmit(event) {
     event.preventDefault();
 
@@ -43,9 +47,6 @@ class App extends Component {
     const {startValue, endValue, taskId} = this.state;
 
     if (taskId === '') {
-       if (startValue === '') {
-           this.setState({startValue: moment()});
-       }
       Meteor.call('tasks.insert', text, new Date(startValue), new Date(endValue));
     } else {
       Meteor.call('tasks.update', taskId, text);
@@ -62,23 +63,6 @@ class App extends Component {
     });
   }
 
-  setStartValue = (value) => {
-    this.setState({startValue: value})
-  };
-
-  setEndValue = (value) => {
-    this.setState({endValue: value})
-  };
-
-  onOpenModal = () => {
-    this.setState({openModal: true});
-    this.resetFields();
-  };
-
-  onCloseModal = () => {
-    this.setState({openModal: false});
-  };
-
   resetFields = () => {
     this.setState({inputValue: 'add'});
     this.setState({taskId: ''});
@@ -86,6 +70,7 @@ class App extends Component {
     this.setState({startValue: moment()});
     this.setState({endValue: moment()});
     this.setState({DateReadOnly: false});
+    this.setState({visibility: 'hidden'});
   };
 
   editThisTask = (taskId) => {
@@ -96,9 +81,21 @@ class App extends Component {
     this.setState({startValue: currTask.startValue});
     this.setState({endValue: currTask.endValue});
     this.setState({DateReadOnly: true});
+    this.setState({visibility: 'visible'});
     this.setState({openModal: true});
   };
 
+//Modal functions 
+  onOpenModal = () => {
+    this.setState({openModal: true});
+    this.resetFields();
+  };
+
+  onCloseModal = () => {
+    this.setState({openModal: false});
+  };
+
+//DatePicker functions 
   disabledStartDate = (startValue) => {
     const endValue = this.state.endValue;
     const lockDate = this.state.lockDate;
@@ -141,9 +138,26 @@ class App extends Component {
     this.setState({endOpen: open});
   };
 
+//Icon functions
+  deleteTask = () => {
+    Meteor.call('tasks.remove', this.state.taskId);
+    this.onCloseModal();
+  };
+  
+  deleteAllTasks = () => {
+    Meteor.call('tasks.removeAll', this.state.taskId);
+    this.onCloseModal();
+  };
+  
 //Renders
   addTaskRender() {
-    const {openModal, textValue, inputValue} = this.state;
+    const {openModal, textValue, inputValue, visibility, padding} = this.state;
+    let divStyle = {
+        float: 'right', 
+        visibility: visibility,
+        padding: '20px 0px 0px 0px',
+    };
+    
     return (
       <div>
         <br/>
@@ -152,7 +166,8 @@ class App extends Component {
         }
         <Modal open={openModal} onClose={this.onCloseModal} centre>
           {this.props.currentUser ?
-            <form className="new-task" onSubmit={this.handleSubmit}>
+          <form className="new-task" onSubmit={this.handleSubmit}>
+          {/*<form className="new-task" onSubmit={this.handleSubmit}>*/}
               <label>
                 <input
                   type="text"
@@ -166,7 +181,12 @@ class App extends Component {
                 {this.DatePickerRender()}
               </div>
               <div>
+                {/*<Button onClick={this.handleSubmit}>{inputValue}</Button>*/}
                 <input type="submit" value={inputValue}/>
+                <span style={divStyle} >
+                    <Icon type="delete" theme="twoTone" onClick={this.deleteTask} title="This task" style={{ fontSize: '24px'}}/> <span> </span>
+                    <Icon type="delete" theme="twoTone" twoToneColor="#cc0000" onClick={this.deleteAllTasks} title="All tasks" style={{ fontSize: '24px'}}/>
+                </span> 
               </div>
             </form> : ''
           }

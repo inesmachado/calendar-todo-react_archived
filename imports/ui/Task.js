@@ -20,10 +20,6 @@ export default class Task extends Component {
     Meteor.call('tasks.setChecked', this.props.task._id, !this.props.task.checked);
   }
 
-  deleteThisTask() {
-    Meteor.call('tasks.remove', this.props.task._id);
-  }
-
   editThisTask() {
     this.props.editThisTask(this.props.task._id);
   };
@@ -42,10 +38,6 @@ export default class Task extends Component {
 
     return (
       <li className={taskClassName}>
-        <button className="delete" onClick={this.deleteThisTask.bind(this)}>
-          &times;
-        </button>
-
         <input
           type="checkbox"
           readOnly
